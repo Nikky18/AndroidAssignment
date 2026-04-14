@@ -1,5 +1,6 @@
 package com.nikky.clientassignmnet.base.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -25,9 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.google.gson.Gson
 import com.nikky.clientassignmnet.NavDest
+import com.nikky.clientassignmnet.base.ui.common.LoadingView
 import com.nikky.clientassignmnet.base.ui.common.TopBarView
 import com.nikky.clientassignmnet.data.local.EventEntity
+import com.nikky.clientassignmnet.utils.DateUtility
 
 @Composable
 fun EventListScreen(
@@ -36,37 +41,55 @@ fun EventListScreen(
 ) {
 
     val events = vm.events.collectAsState()
+    val isLoading = vm.isLoading.collectAsState()
+
+    BackHandler {}
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopBarView(
-                title = "Events",
+                title = "All Events",
                 showLeftIcon = false,
                 leftIcon = Icons.Default.Menu
+            ) {}
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate(NavDest.Bookmark.route)
+                }
             ) {
+                Row {
+                    Text("Show BookMarks", modifier = Modifier.padding(2.dp))
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = "Bookmarks"
+                    )
+                }
 
             }
-        },
-        snackbarHost = {},
+        }
     ) {
-        Column (
-            modifier = Modifier.fillMaxSize().padding(it),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            LazyColumn {
-                items( events.value) { event ->
-                    EventItem(event, onClick = {
-                        navController.navigate(NavDest.EventDetail.route)
-                    }, onBookmark = {
-                        vm.bookmark(event)
-                    })
+        LoadingView (isLoading = isLoading.value) {
+            Column (
+                modifier = Modifier.fillMaxSize().padding(it),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LazyColumn {
+                    items( events.value) { event ->
+                        EventItem(event, onClick = {
+                            val json = Gson().toJson(event)
+                            navController.currentBackStackEntry?.savedStateHandle?.set("event_json", json)
+                            navController.navigate(NavDest.EventDetail.route)
+                        }, onBookmark = {
+                            vm.bookmark(event)
+                        })
+                    }
                 }
             }
-
         }
     }
-
 }
 
 @Composable
@@ -86,9 +109,10 @@ fun EventItem(
                 modifier = Modifier.size(100.dp)
             )
 
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f).padding(horizontal = 8.dp)) {
                 Text(event.title)
                 Text(event.location)
+                Text(DateUtility.formatTime(event.time))
             }
 
             IconButton(onClick = onBookmark) {
