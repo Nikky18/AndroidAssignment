@@ -1,5 +1,6 @@
 package com.nikky.clientassignmnet.base.ui
 
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -23,12 +24,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.nikky.clientassignmnet.NavDest
+import com.nikky.clientassignmnet.R
 import com.nikky.clientassignmnet.base.ui.common.LoadingView
 import com.nikky.clientassignmnet.base.ui.common.TopBarView
 import com.nikky.clientassignmnet.data.local.EventEntity
@@ -39,6 +44,8 @@ fun BookmarkScreen(
     navController: NavController,
     vm: BookMarkViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+
     val bookmarkedEvents = vm.bookmarkedEvents.collectAsState()
     val isLoading = vm.isLoading.collectAsState()
 
@@ -58,7 +65,6 @@ fun BookmarkScreen(
                 showLeftIcon = true,
                 leftIcon = Icons.AutoMirrored.Filled.ArrowBack
             ) {
-                //navController.navigate(NavDest.EventList.route)
                 navController.popBackStack()
             }
         },
@@ -81,7 +87,7 @@ fun BookmarkScreen(
                 } else {
                     LazyColumn {
                         items(bookmarkedEvents.value) { event ->
-                            BookMarkedEventItem(event, onClick = {
+                            BookMarkedEventItem(context, event, onClick = {
                                 val json = Gson().toJson(event)
                                 navController.currentBackStackEntry?.savedStateHandle?.set(
                                     "event_json",
@@ -99,6 +105,7 @@ fun BookmarkScreen(
 
 @Composable
 fun BookMarkedEventItem(
+    context: Context,
     event: EventEntity,
     onClick: () -> Unit
 ) {
@@ -109,7 +116,14 @@ fun BookMarkedEventItem(
 
         Row {
             AsyncImage(
-                model = event.imageUrl,
+                model = ImageRequest.Builder(context)
+                    .data( event.imageUrl)
+                    .crossfade(true)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .placeholder(R.drawable.ic_launcher_background)
+                    .error(R.drawable.ic_launcher_background)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier.size(100.dp)
             )

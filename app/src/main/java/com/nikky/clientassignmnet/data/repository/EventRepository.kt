@@ -1,9 +1,11 @@
 package com.nikky.clientassignmnet.data.repository
 
+import android.util.Log
 import com.nikky.clientassignmnet.data.local.EventDao
 import com.nikky.clientassignmnet.data.local.EventEntity
 import com.nikky.clientassignmnet.data.remote.EventApi
 import javax.inject.Inject
+import kotlin.math.log
 
 class EventRepository @Inject constructor(
     private val api: EventApi,
@@ -15,21 +17,31 @@ class EventRepository @Inject constructor(
     val bookmarkedEvents = dao.getBookmarkedEvents()
 
     suspend fun refresh() {
-        val response = api.getEvents()
 
-        val entities = response.map {
-            EventEntity(
-                id = it.id,
-                title = it.title,
-                location = it.location,
-                time = it.time,
-                imageUrl = it.imageUrl,
-                lat = it.lat,
-                lng = it.lng
-            )
+        try {
+            val response = api.getEvents()
+
+            // Get existing data (cache)
+            val existingEvents = dao.getEventsOnce()
+
+            val entities = response.map { dto ->
+                // preserve bookmark state
+                val old = existingEvents.find { it.id == dto.id }
+                EventEntity(
+                    id = dto.id,
+                    title = dto.title,
+                    location = dto.location,
+                    time = dto.time,
+                    imageUrl = dto.imageUrl,
+                    lat = dto.lat,
+                    lng = dto.lng,
+                    isBookmarked = old?.isBookmarked ?: false
+                )
+            }
+            dao.insertEvents(entities)
+        } catch (e: Exception) {
+            Log.d("REPOSITORY_EXCEPTION", "${e.message}")
         }
-
-        dao.insertEvents(entities)
     }
 
     suspend fun toggleBookmark(event: EventEntity) {

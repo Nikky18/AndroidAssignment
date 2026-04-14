@@ -1,6 +1,7 @@
 package com.nikky.clientassignmnet.base.ui
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.widget.Toast
@@ -36,8 +37,11 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.nikky.clientassignmnet.NavDest
+import com.nikky.clientassignmnet.R
 import com.nikky.clientassignmnet.base.ui.common.LoadingView
 import com.nikky.clientassignmnet.base.ui.common.TopBarView
 import com.nikky.clientassignmnet.data.local.EventEntity
@@ -125,7 +129,7 @@ fun EventListScreen(
             ) {
                 LazyColumn {
                     items(events.value) { event ->
-                        EventItem(event, location.value, onClick = {
+                        EventItem(event, location.value, context, onClick = {
                             val json = Gson().toJson(event)
                             navController.currentBackStackEntry?.savedStateHandle?.set(
                                 "event_json",
@@ -146,6 +150,7 @@ fun EventListScreen(
 fun EventItem(
     event: EventEntity,
     userLocation: Location?,
+    context: Context,
     onClick: () -> Unit,
     onBookmark: () -> Unit
 ) {
@@ -164,7 +169,14 @@ fun EventItem(
 
         Row {
             AsyncImage(
-                model = event.imageUrl,
+                model = ImageRequest.Builder(context)
+                    .data(event.imageUrl)
+                    .crossfade(true)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .diskCachePolicy(CachePolicy.ENABLED)
+                    .placeholder(R.drawable.offline_24)
+                    .error(R.drawable.outline_error_24)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier.size(100.dp)
             )
@@ -180,13 +192,6 @@ fun EventItem(
                 if (userLocation == null) {
                     Column {
                         Text("Location unavailable")
-                        /*Button(onClick = {
-                            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            context.startActivity(intent)
-                        }) {
-                            Text("Enable Location")
-                        }*/
                     }
                 }
                 distance?.let {
