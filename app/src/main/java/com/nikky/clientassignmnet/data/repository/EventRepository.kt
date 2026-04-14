@@ -12,6 +12,8 @@ class EventRepository @Inject constructor(
 
     val events = dao.getEvents()
 
+    val bookmarkedEvents = dao.getBookmarkedEvents()
+
     suspend fun refresh() {
         val response = api.getEvents()
 

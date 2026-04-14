@@ -24,4 +24,7 @@ interface EventDao {
     @Query("DELETE FROM events")
     suspend fun clearEvents()
 
+    @Query("SELECT * FROM events WHERE isBookmarked = 1")
+    fun getBookmarkedEvents(): Flow<List<EventEntity>>
+
 }
