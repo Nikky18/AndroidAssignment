@@ -5,7 +5,6 @@ import com.nikky.clientassignmnet.data.local.EventDao
 import com.nikky.clientassignmnet.data.local.EventEntity
 import com.nikky.clientassignmnet.data.remote.EventApi
 import javax.inject.Inject
-import kotlin.math.log
 
 class EventRepository @Inject constructor(
     private val api: EventApi,
