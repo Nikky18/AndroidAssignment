@@ -1,8 +1,11 @@
 package com.nikky.clientassignmnet.data.local
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = "events")
 data class EventEntity(
     @PrimaryKey val id: String,
@@ -13,4 +16,4 @@ data class EventEntity(
     val isBookmarked: Boolean = false,
     val lat: Double,
     val lng: Double
-)
+): Parcelable
