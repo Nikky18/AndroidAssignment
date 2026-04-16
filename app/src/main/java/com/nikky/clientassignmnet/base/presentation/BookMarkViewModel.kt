@@ -1,9 +1,9 @@
-package com.nikky.clientassignmnet.base.ui
+package com.nikky.clientassignmnet.base.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nikky.clientassignmnet.data.local.EventEntity
-import com.nikky.clientassignmnet.data.repository.EventRepository
+import com.nikky.clientassignmnet.domain.model.Event
+import com.nikky.clientassignmnet.domain.usecase.GetBookmarkedEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -11,16 +11,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BookMarkViewModel @Inject constructor(
-    private val repo: EventRepository
+    private val getBookmarkedEventsUseCase: GetBookmarkedEventsUseCase
 ) : ViewModel() {
-    val bookmarkedEvents = MutableStateFlow<List<EventEntity>>(emptyList())
+    val bookmarkedEvents = MutableStateFlow<List<Event>>(emptyList())
     val isLoading = MutableStateFlow(false)
 
     fun getBookMarkedEvent() {
         viewModelScope.launch {
             isLoading.value = true
-            repo.bookmarkedEvents.collect {
-                bookmarkedEvents.value = it
+            getBookmarkedEventsUseCase().collect { list ->
+                bookmarkedEvents.value = list
                 isLoading.value = false
             }
         }

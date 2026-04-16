@@ -1,9 +1,8 @@
-package com.nikky.clientassignmnet.base.ui
+package com.nikky.clientassignmnet.base.presentation
 
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -42,23 +41,21 @@ import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.nikky.clientassignmnet.NavDest
 import com.nikky.clientassignmnet.R
-import com.nikky.clientassignmnet.base.ui.common.LoadingView
-import com.nikky.clientassignmnet.base.ui.common.TopBarView
-import com.nikky.clientassignmnet.data.local.EventEntity
-import com.nikky.clientassignmnet.utils.DateUtility
-import com.nikky.clientassignmnet.utils.DistanceCalculateUtility.calculateDistance
+import com.nikky.clientassignmnet.base.presentation.common.LoadingView
+import com.nikky.clientassignmnet.base.presentation.common.TopBarView
+import com.nikky.clientassignmnet.domain.model.Event
+import com.nikky.clientassignmnet.utils.DateFormatter
 
 @Composable
 fun EventListScreen(
     navController: NavController,
-    vm: EventViewModel = hiltViewModel()
+    vm: EventListViewModel = hiltViewModel()
 ) {
 
     val context = LocalContext.current
 
     val events = vm.events.collectAsState()
     val isLoading = vm.isLoading.collectAsState()
-    val location = vm.userLocation.collectAsState()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -71,7 +68,6 @@ fun EventListScreen(
             }
         }
     }
-
 
     LaunchedEffect(Unit) {
         val isPermissionGranted = ContextCompat.checkSelfPermission(
@@ -109,7 +105,7 @@ fun EventListScreen(
                     navController.navigate(NavDest.Bookmark.route)
                 }
             ) {
-                Row (Modifier.padding(2.dp)){
+                Row(Modifier.padding(2.dp)) {
                     Text("Show BookMarks", modifier = Modifier.padding(2.dp))
                     Icon(
                         imageVector = Icons.Default.Favorite,
@@ -129,7 +125,7 @@ fun EventListScreen(
             ) {
                 LazyColumn {
                     items(events.value) { event ->
-                        EventItem(event, location.value, context, onClick = {
+                        EventItem(event, context, vm, onClick = {
                             val json = Gson().toJson(event)
                             navController.currentBackStackEntry?.savedStateHandle?.set(
                                 "event_json",
@@ -148,20 +144,12 @@ fun EventListScreen(
 
 @Composable
 fun EventItem(
-    event: EventEntity,
-    userLocation: Location?,
+    event: Event,
     context: Context,
+    vm: EventListViewModel,
     onClick: () -> Unit,
     onBookmark: () -> Unit
 ) {
-    val distance = userLocation?.let {
-        calculateDistance(
-            it.latitude,
-            it.longitude,
-            event.lat,
-            event.lng
-        )
-    }
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -181,24 +169,15 @@ fun EventItem(
                 modifier = Modifier.size(100.dp)
             )
 
-            Column(Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp)) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            ) {
                 Text(event.title)
                 Text(event.location)
-                Text(DateUtility.formatTime(event.time))
-
-                //TODO: Calculate distance took some time need to check  it
-                if (userLocation == null) {
-                    Column {
-                        Text("Location unavailable")
-                    }
-                }
-                distance?.let {
-                    Text(
-                        text = String.format("%.1f km away", it),
-                    )
-                }
+                Text(DateFormatter.formatTime(event.time))
+                Text("${vm.getEventDistanceInKm(event)}")
             }
 
             IconButton(onClick = onBookmark) {

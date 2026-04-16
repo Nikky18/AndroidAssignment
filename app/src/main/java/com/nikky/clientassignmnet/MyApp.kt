@@ -5,9 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.nikky.clientassignmnet.base.ui.BookmarkScreen
-import com.nikky.clientassignmnet.base.ui.EventDetailScreen
-import com.nikky.clientassignmnet.base.ui.EventListScreen
+import com.nikky.clientassignmnet.base.presentation.BookmarkScreen
+import com.nikky.clientassignmnet.base.presentation.EventDetailScreen
+import com.nikky.clientassignmnet.base.presentation.EventListScreen
 
 @Composable
 fun MainApp() {

@@ -2,7 +2,7 @@ package com.nikky.clientassignmnet.utils
 
 import android.location.Location
 
-object DistanceCalculateUtility {
+object DistanceCalculator {
     fun calculateDistance(
         userLat: Double,
         userLng: Double,

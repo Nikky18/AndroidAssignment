@@ -1,4 +1,4 @@
-package com.nikky.clientassignmnet.base.ui
+package com.nikky.clientassignmnet.base.presentation
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
@@ -34,10 +34,10 @@ import coil.request.ImageRequest
 import com.google.gson.Gson
 import com.nikky.clientassignmnet.NavDest
 import com.nikky.clientassignmnet.R
-import com.nikky.clientassignmnet.base.ui.common.LoadingView
-import com.nikky.clientassignmnet.base.ui.common.TopBarView
-import com.nikky.clientassignmnet.data.local.EventEntity
-import com.nikky.clientassignmnet.utils.DateUtility
+import com.nikky.clientassignmnet.base.presentation.common.LoadingView
+import com.nikky.clientassignmnet.base.presentation.common.TopBarView
+import com.nikky.clientassignmnet.domain.model.Event
+import com.nikky.clientassignmnet.utils.DateFormatter
 
 @Composable
 fun BookmarkScreen(
@@ -106,7 +106,7 @@ fun BookmarkScreen(
 @Composable
 fun BookMarkedEventItem(
     context: Context,
-    event: EventEntity,
+    event: Event,
     onClick: () -> Unit
 ) {
     Card(
@@ -133,7 +133,7 @@ fun BookMarkedEventItem(
                 .padding(horizontal = 8.dp)) {
                 Text(event.title)
                 Text(event.location)
-                Text(DateUtility.formatTime(event.time))
+                Text(DateFormatter.formatTime(event.time))
             }
 
             Icon(

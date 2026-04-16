@@ -1,6 +1,7 @@
-package com.nikky.clientassignmnet.base.ui.common
+package com.nikky.clientassignmnet.di
 
 import android.content.Context
+import com.nikky.clientassignmnet.data.location.LocationHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

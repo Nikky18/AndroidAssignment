@@ -1,4 +1,4 @@
-package com.nikky.clientassignmnet.base.ui.common
+package com.nikky.clientassignmnet.data.location
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -7,26 +7,14 @@ import android.location.LocationManager
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 
 class LocationHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-
-   /* private val fusedClient = LocationServices.getFusedLocationProviderClient(context)
-
-    @SuppressLint("MissingPermission")
-    suspend fun getLastLocation(): Location? = suspendCancellableCoroutine { cont ->
-        fusedClient.lastLocation
-            .addOnSuccessListener { location ->
-                cont.resume(location, null)
-            }
-            .addOnFailureListener {
-                cont.resume(null, null)
-            }
-    }*/
-
+    @OptIn(ExperimentalCoroutinesApi::class)
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): Location? = suspendCancellableCoroutine { cont ->
 
@@ -42,7 +30,8 @@ class LocationHelper @Inject constructor(
         }
     }
 
-    fun isLocationEnabled(context: Context): Boolean {
+    fun isLocationEnabled(cntx: Context): Boolean {
+//    fun isLocationEnabled(): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
