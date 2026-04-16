@@ -13,7 +13,8 @@ import com.nikky.clientassignmnet.data.repository.EventRepository
 
 class EventSyncWorker(
     context: Context,
-    workerParams: WorkerParameters
+    workerParams: WorkerParameters,
+    private val repository: EventRepository
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -23,13 +24,7 @@ class EventSyncWorker(
                 Toast.makeText(applicationContext, "Sync Running...", Toast.LENGTH_SHORT).show()
             }
 
-            // Get repository manually
-            val db = EventDatabase.getInstance(applicationContext)
-            val dao = db.eventDao()
-            val api = EventApi(applicationContext)
-            val repo = EventRepository(api, dao)
-
-            repo.refresh()
+            repository.refresh()
             Handler(Looper.getMainLooper()).post {
                 Toast.makeText(applicationContext, "Sync Success ✅", Toast.LENGTH_SHORT).show()
             }
