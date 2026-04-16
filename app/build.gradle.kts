@@ -106,4 +106,5 @@ dependencies {
     //testing
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation("io.mockk:mockk:1.13.5")
+    testImplementation(kotlin("test"))
 }
