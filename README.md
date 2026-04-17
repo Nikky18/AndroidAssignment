@@ -19,13 +19,14 @@ MVVM + Repository
 UI → ViewModel → UseCase → Repository → Data
 
 ## Application Flow
-- App Launch 
-- ViewModel calls Repository.refresh()
-- Repository fetches data from API (JSON)
-- Data saved into Room Database 
-- Room emits Flow updates 
-- ViewModel collects Flow 
-- UI recomposes and shows list
+- App launches and initializes UI
+- ViewModel calls UseCase
+- UseCase requests data from Repository
+- Repository fetches cached data from Room (Flow)
+- Repository fetches fresh data from API and saves it to Room
+- Room emits updated data automatically
+- ViewModel collects Flow and updates state
+- UI recomposes and displays the latest data
 
 ## Demo
 The `demo/` folder contains three screen recordings showcasing the application's functionality and user flow.
