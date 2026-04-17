@@ -16,13 +16,7 @@
 
 ## Architecture
 MVVM + Repository
-UI (Compose)
-↓
-ViewModel
-↓
-Repository
-↓
-Room Database ←→ API (Mock JSON)
+UI → ViewModel → UseCase → Repository → Data
 
 ## Application Flow
 - App Launch 
