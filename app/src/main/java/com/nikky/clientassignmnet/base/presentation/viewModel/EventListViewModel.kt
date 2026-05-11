@@ -1,16 +1,15 @@
-package com.nikky.clientassignmnet.base.presentation
+package com.nikky.clientassignmnet.base.presentation.viewModel
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nikky.clientassignmnet.data.location.LocationHelper
+import com.nikky.clientassignmnet.services.LocationHelper
 import com.nikky.clientassignmnet.domain.model.Event
 import com.nikky.clientassignmnet.domain.usecase.GetEventsUseCase
 import com.nikky.clientassignmnet.domain.usecase.RefreshEventsUseCase
 import com.nikky.clientassignmnet.domain.usecase.ToggleBookmarkUseCase
-import com.nikky.clientassignmnet.utils.DistanceCalculator.calculateDistance
+import com.nikky.clientassignmnet.utils.DistanceCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,7 +25,7 @@ class EventListViewModel @Inject constructor(
     private val locationHelper: LocationHelper
 ) : ViewModel() {
 
-    val events = getEventsUseCase.getEvents().stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val events = getEventsUseCase.getEvents().stateIn(viewModelScope, SharingStarted.Companion.Lazily, emptyList())
     val isLoading = MutableStateFlow(false)
 
     val userLocation = MutableStateFlow<Location?>(null)
@@ -35,7 +34,7 @@ class EventListViewModel @Inject constructor(
         refresh()
     }
 
-    private fun refresh() {
+    fun refresh() {
         viewModelScope.launch {
             isLoading.value = true
             refreshEventsUseCase.refresh()
@@ -43,8 +42,8 @@ class EventListViewModel @Inject constructor(
         }
     }
 
-    fun isLocationEnabled(context: Context): Boolean {
-        return locationHelper.isLocationEnabled(context)
+    fun isLocationEnabled(): Boolean {
+        return locationHelper.isLocationEnabled()
     }
 
     fun fetchLocation() {
@@ -62,7 +61,7 @@ class EventListViewModel @Inject constructor(
     fun getEventDistanceInKm(event: Event): String {
         val loc = userLocation.value ?: return "Location unavailable"
 
-        val distance = calculateDistance(
+        val distance = DistanceCalculator.calculateDistance(
             loc.latitude,
             loc.longitude,
             event.lat,

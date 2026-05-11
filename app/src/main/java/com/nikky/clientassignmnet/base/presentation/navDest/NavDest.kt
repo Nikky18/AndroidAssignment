@@ -1,5 +1,4 @@
-package com.nikky.clientassignmnet
-
+package com.nikky.clientassignmnet.base.presentation.navDest
 
 sealed class NavDest(val route: String) {
     object EventList : NavDest("eventList")

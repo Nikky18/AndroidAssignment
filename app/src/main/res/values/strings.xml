@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">Event Radar</string>
+    <string name="app_name">Event Explorer</string>
+    <string name="my_bookmark">My BookMark</string>
+    <string name="event_detail">Event Detail</string>
+    <string name="event_details">Event Details</string>
+    <string name="test_worker">Test Worker</string>
+    <string name="something_went_wrong">Something Went Wrong</string>
+    <string name="open_in_maps">Open in Maps</string>
+    <string name="enable_location">Enable location</string>
+    <string name="all_events">All Events</string>
+    <string name="show_bookMarks">Show BookMarks</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="back_button">Back button</string>
+    <string name="no_bookmarked_events">No Bookmarked Events</string>
+
 </resources>

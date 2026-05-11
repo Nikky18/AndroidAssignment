@@ -1,11 +1,5 @@
-package com.nikky.clientassignmnet.base.presentation
+package com.nikky.clientassignmnet.base.presentation.screens
 
-import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,19 +23,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import coil.compose.AsyncImage
 import com.google.gson.Gson
+import com.nikky.clientassignmnet.R
 import com.nikky.clientassignmnet.base.presentation.common.LoadingView
 import com.nikky.clientassignmnet.base.presentation.common.TopBarView
+import com.nikky.clientassignmnet.base.presentation.viewModel.EventDetailViewModel
 import com.nikky.clientassignmnet.data.local.EventEntity
 import com.nikky.clientassignmnet.data.worker.EventSyncWorker
+import com.nikky.clientassignmnet.ui.theme.Dimention
 
 @Composable
 fun EventDetailScreen(
@@ -54,11 +50,6 @@ fun EventDetailScreen(
     val event = vm.eventDetail.collectAsState()
     val isLoading = vm.isLoading.collectAsState()
 
-    // Permission launcher
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted -> }
-
     LaunchedEffect(Unit) {
         val event = json?.let {
             Gson().fromJson(it, EventEntity::class.java)
@@ -70,7 +61,7 @@ fun EventDetailScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopBarView(
-                title = event.value?.title ?: "NA",
+                title = event.value?.title ?: stringResource(R.string.event_detail),
                 showLeftIcon = true,
                 leftIcon = Icons.AutoMirrored.Filled.ArrowBack
             ) {
@@ -86,7 +77,7 @@ fun EventDetailScreen(
                     WorkManager.getInstance(context).enqueue(request)
                 }
             ) {
-                Text("Trigger Worker")
+                Text(stringResource(R.string.test_worker))
             }
         }
     ) {
@@ -107,20 +98,20 @@ fun EventDetailScreen(
                             model = event.value?.imageUrl,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(300.dp),
+                                .height(Dimention.Height_300),
                             contentScale = ContentScale.Crop,
                             contentDescription = null,
                         )
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(16.dp)
+                                .padding(Dimention.Medium)
                         ) {
                             Text(
-                                event.value?.title ?: "Oops",
+                                event.value?.title ?: stringResource(R.string.something_went_wrong),
                                 style = MaterialTheme.typography.headlineSmall
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(Dimention.Small))
                             Text(
                                 text = "📍${event.value?.location}",
                                 style = MaterialTheme.typography.bodyMedium
@@ -128,49 +119,39 @@ fun EventDetailScreen(
 
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp)
+                                shape = RoundedCornerShape(Dimention.Medium)
                             ) {
                                 Column(
-                                    modifier = Modifier.padding(16.dp)
+                                    modifier = Modifier.padding(Dimention.Medium)
                                 ) {
 
                                     Text(
-                                        text = "Event Details",
+                                        text = stringResource(R.string.event_detail),
                                         style = MaterialTheme.typography.titleMedium
                                     )
 
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Spacer(modifier = Modifier.height(Dimention.Height_8))
 
                                     Text("Latitude: ${event.value?.lat}")
                                     Text("Longitude: ${event.value?.lng}")
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(Dimention.Height_8))
 
                             Button(
                                 onClick = {
-                                    val permissionStatus = ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.ACCESS_FINE_LOCATION
-                                    )
-
-                                    if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-                                        val uri = Uri.parse("geo:${event.value?.lat},${event.value?.lng}")
-                                        val intent = Intent(Intent.ACTION_VIEW, uri)
-                                        context.startActivity(intent)
-                                    } else {
-                                        permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                                    }
+                                    vm.showLocationOnMap(context)
                                 },
                             ) {
-                                Text("Open in Maps")
+                                Text(stringResource(R.string.open_in_maps))
                             }
                         }
 
                     }
                 } else {
-                    Text("Something Went Wrong",
+                    Text(
+                        stringResource(R.string.something_went_wrong),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge

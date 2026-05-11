@@ -1,4 +1,4 @@
-package com.nikky.clientassignmnet.base.presentation
+package com.nikky.clientassignmnet.base.presentation.screens
 
 import android.Manifest
 import android.content.Context
@@ -20,18 +20,21 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -39,13 +42,16 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.google.gson.Gson
-import com.nikky.clientassignmnet.NavDest
 import com.nikky.clientassignmnet.R
 import com.nikky.clientassignmnet.base.presentation.common.LoadingView
 import com.nikky.clientassignmnet.base.presentation.common.TopBarView
+import com.nikky.clientassignmnet.base.presentation.navDest.NavDest
+import com.nikky.clientassignmnet.base.presentation.viewModel.EventListViewModel
 import com.nikky.clientassignmnet.domain.model.Event
+import com.nikky.clientassignmnet.ui.theme.Dimention
 import com.nikky.clientassignmnet.utils.DateFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventListScreen(
     navController: NavController,
@@ -53,6 +59,7 @@ fun EventListScreen(
 ) {
 
     val context = LocalContext.current
+    val pullRefreshState = rememberPullToRefreshState()
 
     val events = vm.events.collectAsState()
     val isLoading = vm.isLoading.collectAsState()
@@ -61,26 +68,25 @@ fun EventListScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            if (vm.isLocationEnabled(context)) {
+            if (vm.isLocationEnabled()) {
                 vm.fetchLocation()
             } else {
-                Toast.makeText(context, "Enable location", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,  context.getString(R.string.enable_location), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     LaunchedEffect(Unit) {
         val isPermissionGranted = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            context, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
         if (isPermissionGranted) {
             //Check GPS
-            if (vm.isLocationEnabled(context)) {
+            if (vm.isLocationEnabled()) {
                 vm.fetchLocation()
             } else {
-                Toast.makeText(context, "Please enable location", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.enable_location), Toast.LENGTH_SHORT).show()
             }
 
         } else {
@@ -94,7 +100,7 @@ fun EventListScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopBarView(
-                title = "All Events",
+                title = stringResource(R.string.all_events),
                 showLeftIcon = false,
                 leftIcon = Icons.Default.Menu
             ) {}
@@ -105,23 +111,27 @@ fun EventListScreen(
                     navController.navigate(NavDest.Bookmark.route)
                 }
             ) {
-                Row(Modifier.padding(2.dp)) {
-                    Text("Show BookMarks", modifier = Modifier.padding(2.dp))
+                Row(Modifier.padding(Dimention.VeryExtraSmall)) {
+                    Text(stringResource(R.string.show_bookMarks), modifier = Modifier.padding(Dimention.VeryExtraSmall))
                     Icon(
                         imageVector = Icons.Default.Favorite,
-                        contentDescription = "Bookmarks"
+                        contentDescription = stringResource(R.string.bookmarks)
                     )
                 }
-
             }
         }
     ) {
         LoadingView(isLoading = isLoading.value) {
-            Column(
+
+            PullToRefreshBox(
+                isRefreshing = isLoading.value,
+                onRefresh = {
+                    vm.refresh()
+                },
+                state = pullRefreshState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(it)
             ) {
                 LazyColumn {
                     items(events.value) { event ->
@@ -152,7 +162,7 @@ fun EventItem(
 ) {
     Card(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(Dimention.Small)
             .clickable { onClick() }) {
 
         Row {
@@ -166,18 +176,18 @@ fun EventItem(
                     .error(R.drawable.outline_error_24)
                     .build(),
                 contentDescription = null,
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(Dimention.ImageLarge)
             )
 
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = Dimention.Small)
             ) {
                 Text(event.title)
                 Text(event.location)
                 Text(DateFormatter.formatTime(event.time))
-                Text("${vm.getEventDistanceInKm(event)}")
+                Text(vm.getEventDistanceInKm(event))
             }
 
             IconButton(onClick = onBookmark) {

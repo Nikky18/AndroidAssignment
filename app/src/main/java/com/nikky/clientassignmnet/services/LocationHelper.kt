@@ -1,4 +1,4 @@
-package com.nikky.clientassignmnet.data.location
+package com.nikky.clientassignmnet.services
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -30,10 +30,8 @@ class LocationHelper @Inject constructor(
         }
     }
 
-    fun isLocationEnabled(cntx: Context): Boolean {
-//    fun isLocationEnabled(): Boolean {
+    fun isLocationEnabled(): Boolean {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }

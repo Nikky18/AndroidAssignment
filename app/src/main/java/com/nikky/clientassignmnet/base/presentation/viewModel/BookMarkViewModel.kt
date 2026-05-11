@@ -1,4 +1,4 @@
-package com.nikky.clientassignmnet.base.presentation
+package com.nikky.clientassignmnet.base.presentation.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

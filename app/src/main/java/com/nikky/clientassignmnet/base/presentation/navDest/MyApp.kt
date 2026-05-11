@@ -1,13 +1,15 @@
-package com.nikky.clientassignmnet
+package com.nikky.clientassignmnet.base.presentation.navDest
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.nikky.clientassignmnet.base.presentation.BookmarkScreen
-import com.nikky.clientassignmnet.base.presentation.EventDetailScreen
-import com.nikky.clientassignmnet.base.presentation.EventListScreen
+import androidx.navigation.navArgument
+import com.nikky.clientassignmnet.base.presentation.screens.BookmarkScreen
+import com.nikky.clientassignmnet.base.presentation.screens.EventDetailScreen
+import com.nikky.clientassignmnet.base.presentation.screens.EventListScreen
 
 @Composable
 fun MainApp() {
